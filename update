@@ -17,7 +17,7 @@ options:
 # ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
 # events
 on join:
-	khcore_notifyUpdate(player, "KhCore", "khcore", "76731", "{@version}", "khcore atualizar")
+	khcore_notifyUpdate(player, "KhCore", "khcore", "86802", "{@version}", "khcore atualizar")
 
 # ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
 # commands
@@ -104,7 +104,7 @@ function khcore_paintArmor(p: player, t: text):
 # load
 on load:
 	wait 1 second
-	text from "https://api.spigotmc.org/legacy/update.php?resource=76731" != "{@version}":
+	text from "https://api.spigotmc.org/legacy/update.php?resource=86802" != "{@version}":
 		set {khcore::check_update} to "true"
 		send "&3[KHCORE] &cYou are not using the latest version of skript" to console
 	else:
