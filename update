@@ -1,0 +1,112 @@
+# ─────────────────────────────────────────────────── #
+#                 ▒███████▒ ███▄    █     ──          #
+#                 ▒ ▒ ▒ ▄▀░ ██ ▀█   █                 #
+#     ───         ░ ▒ ▄▀▒░ ▓██  ▀█ ██▒                #
+#                   ▄▀▒   ░▓██▒  ▐▌██▒                #
+#                 ▒███████▒▒██░   ▓██░                #
+#                 ░▒▒ ▓░▒░▒░ ▒░   ▒ ▒                 #
+#                 ░░▒ ▒ ░ ▒░ ░░   ░ ▒░                #
+#                 ░ ░ ░ ░ ░   ░   ░ ░      ───        #
+#                   ░ ░             ░                 #
+#   ─             ░                                   #
+# ─────────────────────────────────────────────────── #
+options:
+#	Nome: KhCore | Autor: Kiberzn
+	version: 1.0
+
+# ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
+# events
+on join:
+	khcore_notifyUpdate(player, "KhCore", "khcore", "76731", "{@version}", "khcore atualizar")
+
+# ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
+# commands
+command /khcore [<text = help>]:
+	permission: khcore.*
+	permission message: §3[KhCore] §7v{@version} §f- §7Criado por §6Kiberzn§7.
+	trigger:
+		arg 1 == "help":
+			send "%nl%&e  Ajuda - Core 1/1%nl% "
+			send "&3 /khcore atualizar &f- &7Atualiza o skript"
+			send newline
+		arg 1 == "atualizar":
+			khcore_update(player, "%{khcore::check_update}%", "KhCore")
+
+# ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
+# apis
+function khcore_makeGui(p: player, row: number, title: text):
+	open chest with {_row} row named colored {_title} to {_p}
+function khcore_playSound(p: player, sound: sound, v: number, pi: number):
+	play sound {_sound} to {_p} with volume {_v} and pitch {_pi}
+function khcore_downGithub(file: text, link: text):
+	file "plugins/%{_file}%" doesn't exist:
+		download file from "%{_link}%" to file "plugins/%{_file}%"
+function khcore_getSlot(text: text) :: text:
+	set {_string::*} to {_text} split at " : "
+	set {_slot} to {_string::1}
+	replace all "slot>" in {_slot} with ""
+	return "%{_slot}%"
+function khcore_getColor(text: text) :: text:
+	set {_string::*} to {_text} split at " : "
+	set {_color} to {_string::1}
+	replace all "color>" in {_color} with ""
+	return "%{_color}%"
+function khcore_getItem(text: text) :: text:
+	set {_string::*} to {_text} split at " : "
+	set {_item} to {_string::2}
+	replace all "item>" in {_item} with ""
+	return "%{_item}%"
+function khcore_getName(text: text) :: text:
+	set {_string::*} to {_text} split at " : "
+	set {_name} to {_string::3}
+	replace all "named>" in {_name} with ""
+	return colored {_name}
+function khcore_getLore(text: text) :: text:
+	set {_string::*} to {_text} split at " : "
+	set {_lore} to {_string::4}
+	replace all "lore>" in {_lore} with ""
+	replace all "\n" in {_lore} with "||"
+	return colored {_lore}
+function khcore_notifyUpdate(p: player, name: text, perm: text, id: text, v: text, cmd: text):
+	text from "https://api.spigotmc.org/legacy/update.php?resource=%{_id}%" is not "%{_v}%":
+		{_p} has permission "%{_perm}%.update" or "%{_perm}%.*":
+			send "%nl%&3 [%{_name}%] &7There is a new skript update, click <tooltip:&bClick here to update.><command:/%{_cmd}%>&a&lHERE<reset> &7to update.%nl% " to {_p}
+function khcore_update(p: player, var: text, name: text):
+	send {_var} to {_p}
+	{_var} == "true":
+		set action bar of {_p} to "&aConectando com o site..."
+		wait 2 second
+		set {_percent1} to 90
+		loop 90 times:
+			add 1 to {_percent2}
+			set {_percent} to {_percent2}/{_percent1}*100
+			set action bar of {_p} to "&aBaixando arquivo... &8(%{_percent}%%%)"
+			wait a tick
+		set {_sk} to {_name}
+		delete file "plugins/Skript/scripts/%{_sk}%.sk"
+		download file from "https://raw.githubusercontent.com/KickHolse/%{_sk}%/master/update" to file "plugins/Skript/scripts/%{_sk}%.sk"
+		reload script "%{_sk}%"
+		khcore_playSound({_p}, ORB_PICKUP, 0.5, 5.0)
+		set action bar of {_p} to "&aAtualização instalada com sucesso!"
+	else:
+		send "&cO skript se encontra em sua ultima versão." to {_p}
+function khcore_paintArmor(p: player, t: text):
+	set {_string::*} to {_t} split at ", "
+	set {_r} to {_string::1} parsed as number
+	set {_g} to {_string::2} parsed as number
+	set {_b} to {_string::3} parsed as number
+	dye {_p}'s helmet ({_r}, {_g}, {_b})
+	dye {_p}'s chestplate ({_r}, {_g}, {_b})
+	dye {_p}'s leggings ({_r}, {_g}, {_b})
+	dye {_p}'s boots ({_r}, {_g}, {_b})
+
+# ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
+# load
+on load:
+	wait 1 second
+	text from "https://api.spigotmc.org/legacy/update.php?resource=76731" != "{@version}":
+		set {khcore::check_update} to "true"
+		send "&3[KHCORE] &cYou are not using the latest version of skript" to console
+	else:
+		send "&3[KHCORE] &aYou are using the latest version of skript" to console
+	send "&3[KHCORE] &aKhCore &8v{@version} &aenabled!" to console
