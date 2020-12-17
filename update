@@ -72,7 +72,6 @@ function khcore_notifyUpdate(p: player, name: text, perm: text, id: text, v: tex
 		{_p} has permission "%{_perm}%.update" or "%{_perm}%.*":
 			send "%nl%&3 [%{_name}%] &7There is a new skript update, click <tooltip:&bClick here to update.><command:/%{_cmd}%>&a&lHERE<reset> &7to update.%nl% " to {_p}
 function khcore_update(p: player, var: text, name: text):
-	send {_var} to {_p}
 	{_var} == "true":
 		set action bar of {_p} to "&aConectando com o site..."
 		wait 2 second
