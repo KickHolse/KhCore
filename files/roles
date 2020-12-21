@@ -10,7 +10,7 @@ roles:
     permission: roles.vip
     broadcast: true
   master:
-    name: 'Bixa'
-    prefix: '&d[Bixa] '
+    name: 'Master'
+    prefix: '&6[Master] '
     permission: '*'
     broadcast: true
