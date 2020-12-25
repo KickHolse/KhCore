@@ -224,7 +224,7 @@ function khcore_roles_getRole(p: player) :: String:
 function khcore_roles_getPrefixed(p: player) :: String:
 	set {_role} to khcore_roles_getRole({_p})
 	set {_prefix} to "%{role::%{_role}%.prefix}%"
-	return "%{_prefix}% %{_p}%"
+	return "%{_prefix}%%{_p}%"
 function khcore_roles_getColored(p: player) :: String:
 	set {_role} to khcore_roles_getRole({_p})
 	set {_color} to khcore_getLastColor("%{role::%{_role}%.prefix}%")
