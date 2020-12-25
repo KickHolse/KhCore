@@ -39,7 +39,7 @@ command /khcore [<text = help>]:
 			send "&3 /khcore atualizar &f- &7Atualiza o skript"
 			send newline
 		arg 1 == "atualizar":
-			khcore_update(player, "%{khcore::check_update}%", "KhCore", "%script%")
+			khcore_update(player, "%{khcore::check_update}%", "KhCore", script)
 
 # ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
 # apis
