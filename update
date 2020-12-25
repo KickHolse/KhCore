@@ -39,7 +39,7 @@ command /khcore [<text = help>]:
 			send "&3 /khcore atualizar &f- &7Atualiza o skript"
 			send newline
 		arg 1 == "atualizar":
-			khcore_update(player, "%{khcore::check_update}%", "KhCore")
+			khcore_update(player, "%{khcore::check_update}%", "KhCore", "%script%")
 
 # ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
 # apis
@@ -132,7 +132,7 @@ function khcore_notifyUpdate(p: player, name: text, perm: text, id: text, v: tex
 	text from "https://api.spigotmc.org/legacy/update.php?resource=%{_id}%" is not "%{_v}%":
 		{_p} has permission "%{_perm}%.update" or "%{_perm}%.*":
 			send "%nl%&3 [%{_name}%] &7There is a new skript update, click <tooltip:&bClick here to update.><command:/%{_cmd}%>&a&lHERE<reset> &7to update.%nl% " to {_p}
-function khcore_update(p: player, var: text, name: text):
+function khcore_update(p: player, var: text, name: text, sk: text):
 	{_var} == "true":
 		set action bar of {_p} to "&aConectando com o site..."
 		wait 2 second
@@ -142,9 +142,8 @@ function khcore_update(p: player, var: text, name: text):
 			set {_percent} to {_percent2}/{_percent1}*100
 			set action bar of {_p} to "&aBaixando arquivo... &8(%{_percent}%%%)"
 			wait a tick
-		set {_sk} to {_name}
 		delete file "plugins/Skript/scripts/%{_sk}%.sk"
-		download file from "https://raw.githubusercontent.com/KickHolse/%{_sk}%/master/update" to file "plugins/Skript/scripts/%{_sk}%.sk"
+		download file from "https://raw.githubusercontent.com/KickHolse/%{_name}%/master/update" to file "plugins/Skript/scripts/%{_sk}%.sk"
 		reload script "%{_sk}%"
 		khcore_playSound({_p}, ORB_PICKUP, 1, 5)
 		set action bar of {_p} to "&aAtualização instalada com sucesso!"
