@@ -12,7 +12,16 @@
 # ─────────────────────────────────────────────────── #
 options:
 #	Nome: KhCore | Autor: Kiberzn
-	version: 1.0
+	version: 1.1
+
+# ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
+# imports
+import:
+	org.bukkit.Material	
+	org.bukkit.material.MaterialData	
+	fr.mrmicky.fastparticle.FastParticle
+	fr.mrmicky.fastparticle.ParticleType
+	org.bukkit.Sound
 
 # ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
 # events
@@ -34,39 +43,91 @@ command /khcore [<text = help>]:
 
 # ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
 # apis
-function khcore_makeGui(p: player, row: number, title: text):
-	open chest with {_row} row named colored {_title} to {_p}
-function khcore_playSound(p: player, sound: sound, v: number, pi: number):
-	play sound {_sound} to {_p} with volume {_v} and pitch {_pi}
 function khcore_downGithub(file: text, link: text):
 	file "plugins/%{_file}%" doesn't exist:
+		create file "plugins/%{_file}%"
+		delete file "plugins/%{_file}%"
 		download file from "%{_link}%" to file "plugins/%{_file}%"
-function khcore_getSlot(text: text) :: text:
-	set {_string::*} to {_text} split at " : "
-	set {_slot} to {_string::1}
-	replace all "slot>" in {_slot} with ""
-	return "%{_slot}%"
-function khcore_getColor(text: text) :: text:
-	set {_string::*} to {_text} split at " : "
-	set {_color} to {_string::1}
-	replace all "color>" in {_color} with ""
-	return "%{_color}%"
-function khcore_getItem(text: text) :: text:
-	set {_string::*} to {_text} split at " : "
-	set {_item} to {_string::2}
-	replace all "item>" in {_item} with ""
-	return "%{_item}%"
-function khcore_getName(text: text) :: text:
-	set {_string::*} to {_text} split at " : "
-	set {_name} to {_string::3}
-	replace all "named>" in {_name} with ""
-	return colored {_name}
-function khcore_getLore(text: text) :: text:
-	set {_string::*} to {_text} split at " : "
-	set {_lore} to {_string::4}
-	replace all "lore>" in {_lore} with ""
-	replace all "\n" in {_lore} with "||"
-	return colored {_lore}
+function khcore_playSound(p: player, sound: sound, v: int, w: int):
+	{_p}.playSound(location of {_p}, Sound.."%{_sound}%", {_v} and {_w})
+function khcore_getColor(str: String) :: color:
+	set {split::*} to {_str} split at " : "
+	loop {split::*}:
+		if loop-value contains "color>":
+			set {item::*} to loop-value split at ">"
+			return {item::2} parsed as color
+function khcore_getItem(str: String) :: material:
+	set {_split::*} to {_str} split at " : "
+	loop {_split::*}:
+		if loop-value contains "item>":
+			set {_item::*} to loop-value split at ">"
+			if {_item::2} contains "UNBREAKABLE ":
+				replace all "UNBREAKABLE " in {_item::2} with ""
+				return unbreakable {_item::2} parsed as material
+			if {_item::2} contains "SHINY ":
+				replace all "SHINY " in {_item::2} with ""
+				return shiny {_item::2} parsed as material
+			if {_item::2} contains "HEAD:owner=":
+				set {_owner} to last element of {_item::2} split at "HEAD:owner=" parsed as offlineplayer
+				return skull of {_owner}
+			return {_item::2} parsed as material
+function khcore_getLore(str: String) :: string:
+	set {split::*} to {_str} split at " : "
+	loop {split::*}:
+		if loop-value contains "lore>":
+			set {item::*} to loop-value split at ">"
+			replace all "\n" with "||" in {item::2}
+			return colored {item::2}
+function khcore_getName(str: String) :: string:
+	set {split::*} to {_str} split at " : "
+	loop {split::*}:
+		if loop-value contains "named>":
+			set {item::*} to loop-value split at ">"
+			return colored {item::2}
+function khcore_getSlot(str: String) :: integer:
+	set {split::*} to {_str} split at " : "
+	loop {split::*}:
+		if loop-value contains "slot>":
+			set {item::*} to loop-value split at ">"
+			return {item::2} parsed as int	
+function khcore_getCommand(str: String) :: string:
+	set {split::*} to {_str} split at " : "
+	loop {split::*}:
+		if loop-value contains "execute>":
+			set {item::*} to loop-value split at ">"
+			return {item::2}
+on load:
+    set {color-code} to "§, &, *"
+    set {color-pattern} to "a, b, c, d, e, f, k, l, m, n, o, r, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0"
+function khcore_getFirstColor(str: String) :: String:
+    set {_codes::*} to {color-code} split at ", "
+    loop {_codes::*}:
+        set {_patterns::*} to {color-pattern} split at ", "
+        loop {_patterns::*}:
+            replace all "%loop-value-1%%loop-value-2%" in {_str} with "/start/%loop-value-1%%loop-value-2%/end/"
+    if {_str} contains "/start/":
+        set {_start::*} to {_str} split at "/start/"
+        return first element of {_start::2} split at "/end/"
+    else:
+        return "§f"
+function khcore_getLastColor(str: String) :: String:
+    set {_codes::*} to {color-code} split at ", "
+    loop {_codes::*}:
+        set {_patterns::*} to {color-pattern} split at ", "
+        loop {_patterns::*}:
+            replace all "%loop-value-1%%loop-value-2%" in {_str} with "/start/%loop-value-1%%loop-value-2%/end/"
+    if {_str} contains "/start/":
+        set {_start} to last element of {_str} split at "/start/"
+        return first element of {_start} split at "/end/"
+    else:
+        return "§f"
+function khcore_stripColors(str: String) :: String:
+	set {_codes::*} to {color-code} split at ", "
+	loop {_codes::*}:
+		set {_patterns::*} to {color-pattern} split at ", "
+		loop {_patterns::*}:
+			replace all "%loop-value-1%%loop-value-2%" in {_str} with ""
+	return {_str}
 function khcore_notifyUpdate(p: player, name: text, perm: text, id: text, v: text, cmd: text):
 	text from "https://api.spigotmc.org/legacy/update.php?resource=%{_id}%" is not "%{_v}%":
 		{_p} has permission "%{_perm}%.update" or "%{_perm}%.*":
@@ -85,7 +146,7 @@ function khcore_update(p: player, var: text, name: text):
 		delete file "plugins/Skript/scripts/%{_sk}%.sk"
 		download file from "https://raw.githubusercontent.com/KickHolse/%{_sk}%/master/update" to file "plugins/Skript/scripts/%{_sk}%.sk"
 		reload script "%{_sk}%"
-		khcore_playSound({_p}, ORB_PICKUP, 0.5, 5.0)
+		khcore_playSound({_p}, ORB_PICKUP, 1, 5)
 		set action bar of {_p} to "&aAtualização instalada com sucesso!"
 	else:
 		send "&cO skript se encontra em sua ultima versão." to {_p}
@@ -98,10 +159,128 @@ function khcore_paintArmor(p: player, t: text):
 	dye {_p}'s chestplate ({_r}, {_g}, {_b})
 	dye {_p}'s leggings ({_r}, {_g}, {_b})
 	dye {_p}'s boots ({_r}, {_g}, {_b})
+function khcore_getWorldOnline(str: String) :: int:
+	set {_online} to 0
+	loop all players:
+		"%{_p}'s world%" == {_str}:
+			add 1 to {_online}
+	return {_online}
+function khcore_serializeLocation(unserialized: Location) :: String:
+	return "%{_unserialized}'s world%, %{_unserialized}'s x-coordinate%, %{_unserialized}'s y-coordinate%, %{_unserialized}'s z-coordinate%, %{_unserialized}'s yaw%, %{_unserialized}'s pitch%"
+function khcore_deserializeLocation(serialized: String) :: location:
+	set {_xyz::*} to {_serialized} split at ", "
+	set {_loc} to location at {_xyz::2} parsed as number, {_xyz::3} parsed as number, {_xyz::4} parsed as number of world "%{_xyz::1}%" parsed as world
+	set {_loc}'s yaw to {_xyz::5} parsed as number
+	set {_loc}'s pitch to {_xyz::6} parsed as number
+	return {_loc}
+function khcore_reverseValues(list: objects) :: objects:
+	loop size of {_list::*} times:
+		set {_index} to size of {_list::*} - loop-number - 1
+		add {_list::%{_index}%} to {_reversed::*}
+	return {_reversed::*}
+function khcore_listContains(list: objects, search: object) :: boolean:
+	loop {_list::*}:
+		if loop-value is {_search}:
+			return true
+	return false
+function khcore_getFirstValue(list: objects) :: text:
+	loop {_list::*}:
+		return loop-value
+function khcore_getLastValue(list: objects) :: text:
+	loop {_list::*}:
+		add 1 to {_current}
+		{_current} == size of {_list::*}:
+			return loop-value
+function khcore_getPercent(percent: int, of: int, symbol: boolean = false) :: text:
+	set {_value} to (100 / {_of}) * {_percent}
+	{_symbol} is true:
+		return "%{_value}% %%"
+	return "%{_value}%"
+function khcore_blood(p: player):
+	set {_w} to world of {_p}
+	set {_loc} to location of {_p}
+	set {_material} to new MaterialData(Material.."REDSTONE_BLOCK")
+	FastParticle.spawnParticle({_w}, ParticleType.BLOCK_CRACK, {_loc}, 3 and {_material})
+
+# ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
+# Role api
+function khcore_roles_setup(p: player):
+	loop {roles::*}:
+		"%{role::%loop-value%.permission}%" == "none":
+			set {roleName.%{_p}%} to "%loop-value%"
+			set {position.%{_p}%} to {role::%loop-value%.position}
+			set {broadcast.%{_p}%} to {role::%loop-value%.broadcast}
+		{_p} has permission "%{role::%loop-value%.permission}%":
+			set {roleName.%{_p}%} to "%loop-value%"
+			set {position.%{_p}%} to {role::%loop-value%.position}
+			set {broadcast.%{_p}%} to {role::%loop-value%.broadcast}
+		khcore_updateTag({_p})
+function khcore_roles_getPos(str: String) :: int:
+	return {roleName.%{_p}%}
+function khcore_roles_getPosition(p: player) :: int:
+	return {roleName.%{_p}%}
+function khcore_roles_getRole(p: player) :: String:
+	return {roleName.%{_p}%}
+function khcore_roles_getPrefixed(p: player) :: String:
+	set {_role} to khcore_roles_getRole({_p})
+	set {_prefix} to "%{role::%{_role}%.prefix}%"
+	return "%{_prefix}% %{_p}%"
+function khcore_roles_getColored(p: player) :: String:
+	set {_role} to khcore_roles_getRole({_p})
+	set {_color} to khcore_getLastColor("%{role::%{_role}%.prefix}%")
+	return "%{_color}%%{_p}%"
+function khcore_roles_getColoredGroup(p: player) :: String:
+	set {_role} to khcore_roles_getRole({_p})
+	set {_color} to khcore_getLastColor("%{role::%{_role}%.prefix}%")
+	return "%{_color}%%{role::%{_role}%.name}%"
+function khcore_roles_getPrefix(p: player) :: String:
+	set {_role} to khcore_roles_getRole({_p})
+	return "%{role::%{_role}%.prefix}%"
+function khcore_roles_getColor(p: player) :: String:
+	set {_role} to khcore_roles_getRole({_p})
+	set {_color} to khcore_getLastColor("%{role::%{_role}%.prefix}%")
+	return "%{_color}%"
+function khcore_updateTag(p: player):
+	set {_prefix} to khcore_roles_getPrefix({_p})
+	set {_color} to khcore_roles_getColor({_p})
+	{_prefix} contains " ":
+		make console execute command "nte player %{_p}% prefix %{_prefix}%%{_color}%"
+	else:
+		make console execute command "nte player %{_p}% prefix %{_prefix}%"
+	make console execute command "nte player %{_p}% priority %{position.%{_p}%}%"
+
+# ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
+# file manager
+function khcore_filemanager(use: text):
+	{_use} == "value":
+		delete {roles::*}
+		set {roles::*} to skutil yaml nodes "roles" from file "plugins/KhCore/roles.yml"
+		set {_pos} to size of {roles::*}
+		clear {role::*}
+		loop {roles::*}:
+			set {_role} to loop-value
+			
+			set {_name} to yaml value "roles.%{_role}%.name" from file "plugins/KhCore/roles.yml"
+			set {_prefix} to yaml value "roles.%{_role}%.prefix" from file "plugins/KhCore/roles.yml"
+			
+			set {role::%{_role}%.position} to {_pos}
+			set {role::%{_role}%.permission} to yaml value "roles.%{_role}%.permission" from file "plugins/KhCore/roles.yml"
+			set {role::%{_role}%.broadcast} to yaml value "roles.%{_role}%.broadcast" from file "plugins/KhCore/roles.yml"
+			set {role::%{_role}%.name} to colored {_name}
+			set {role::%{_role}%.prefix} to colored {_prefix}
+			
+			remove 1 from {_pos}
+	{_use} == "create":
+		file "plugins/KhCore/roles.yml" doesn't exist:
+			create file "plugins/KhCore/config.yml"
+			delete file "plugins/KhCore/config.yml"
+			khcore_downGithub("KhCore/roles.yml", "https://raw.githubusercontent.com/KickHolse/KhCore/main/files/roles")
+		khcore_filemanager("value")
 
 # ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
 # load
 on load:
+	khcore_filemanager("create")
 	wait 1 second
 	text from "https://api.spigotmc.org/legacy/update.php?resource=86802" != "{@version}":
 		set {khcore::check_update} to "true"
