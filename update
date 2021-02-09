@@ -219,63 +219,6 @@ function khcore_getStats(p: player, type: text) :: text:
 	return {_x%{_p}%}
 
 # ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
-# menu
-command /m [<text>]:
-	trigger:
-		khcore_menu(player, arg 1)
-function khcore_menu(p: player, pag: text):
-	{_pag} == "profile":
-		khcore_playSound({_p}, CLICK, 1, 15)
-		open chest inventory with yml value "menu.rows" from "khcore.menus/profile" rows named yml value "menu.title" from "khcore.menus/profile" to {_p}
-		wait a tick
-		set {_temp::*} to skutil yaml nodes "menu.items" from file "plugins/KhCore/menus/profile.yml"
-		loop {_temp::*}:
-			set {_x} to yml value "menu.items.%loop-value%.icon" from file "plugins/KhCore/menus/profile.yml"
-			set {_c} to yml value "menu.items.%loop-value%.execute" from file "plugins/KhCore/menus/profile.yml"
-			set {_lore} to khcore_getLore({_x})
-			set {_item} to khcore_getItem({_x})
-			make a gui slot yml value "menu.items.%loop-value%.slot" from "khcore.menus/profile" of {_p} with {_item} without NBT named khcore_getName({_x}) with lore colored khcore_getText({_p}, "%{_lore}%") to run:
-				{_c} contains "SOUND>":
-					set {_temp::*} to {_c} split at "SOUND>"
-					set {_sound} to "%{_temp::2}%" parsed as sound
-					khcore_playSound({_p}, {_sound}, 1, 15)
-				{_c} contains "CORE>":
-					set {_temp::*} to {_c} split at "CORE>"
-					khcore_menu({_p}, "%{_temp::2}%")
-	{_pag} == "settings":
-		khcore_playSound({_p}, CLICK, 1, 15)
-		open chest inventory with yml value "menu.rows" from "khcore.menus/settings" rows named yml value "menu.title" from "khcore.menus/settings" to {_p}
-		wait a tick
-		set {_temp::*} to skutil yaml nodes "menu.items" from file "plugins/KhCore/menus/settings.yml"
-		loop {_temp::*}:
-			set {_set} to loop-value
-			set {_x} to yml value "menu.items.%loop-value%.icon" from file "plugins/KhCore/menus/settings.yml"
-			set {_c} to yml value "menu.items.%loop-value%.execute" from file "plugins/KhCore/menus/settings.yml"
-			set {_lore} to khcore_getLore({_x})
-			set {_item} to khcore_getItem({_x})
-			set {_name} to khcore_getName({_x})
-			set {_slot} to yml value "menu.items.%loop-value%.slot" from "khcore.menus/settings"
-			make a gui slot {_slot} of {_p} with {_item} without NBT named "&a%{_name}%" with lore colored khcore_getText({_p}, "%{_lore}%") to run:
-				{_c} contains "SOUND>":
-					set {_temp::*} to {_c} split at "SOUND>"
-					set {_sound} to "%{_temp::2}%" parsed as sound
-					khcore_playSound({_p}, {_sound}, 1, 15)
-				{_c} contains "CORE>":
-					set {_temp::*} to {_c} split at "CORE>"
-					khcore_menu({_p}, "%{_temp::2}%")
-			loop-value == "players":
-				loop true and false:
-					khcore_checkStats({_p}, "%loop-value-1%") == loop-value-2:
-						set {_op} to yml value "options.icons.%loop-value-2%" from file "plugins/KhCore/menus/settings.yml"
-						set {_item} to khcore_getItem({_op})
-						set {_name} to khcore_getName({_op})
-						replace all "{name}" in {_name} with khcore_getName({_x})
-						add 9 to {_slot}
-						make a gui slot {_slot} of {_p} with {_item} without NBT named {_name} with lore khcore_getLore({_op}) to run:
-							#khlobby_settings({_p}, "%{_set}%")
-							khcore_menu({_p}, "settings")
-
-# ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
 # Role api
 function khcore_roles_setup(p: player):
 	loop {roles::*}:
@@ -326,11 +269,6 @@ function khcore_updateTag(p: player):
 # file manager
 function khcore_filemanager(use: text):
 	{_use} == "value":
-		loop currently loaded yaml files:
-			loop-value contains "khcore.menus/settings" or "khcore.menus/profile" or "khcore.config"
-			unload yaml loop-value
-		loop "menus/settings" and "menus/profile" and "config":
-			load yaml "plugins/KhCore/%loop-value%.yml" as "khcore.%loop-value%"
 		delete {roles::*}
 		set {roles::*} to skutil yaml nodes "roles" from file "plugins/KhCore/roles.yml"
 		set {_pos} to size of {roles::*}
