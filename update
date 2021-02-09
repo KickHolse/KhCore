@@ -26,6 +26,7 @@ import:
 # ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
 # events
 on join:
+	khcore_loadStats(player)
 	khcore_notifyUpdate(player, "KhCore", "khcore", "86802", "{@version}", "khcore atualizar")
 
 # ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
@@ -36,8 +37,7 @@ command /khcore [<text = help>]:
 	trigger:
 		arg 1 == "help":
 			send "%nl%&e  Ajuda - Core 1/1%nl% "
-			send "&3 /khcore atualizar &f- &7Atualiza o skript"
-			send newline
+			send "&3 /khcore atualizar &f- &7Atualiza o skript%nl% "
 		arg 1 == "atualizar":
 			khcore_update(player, "%{khcore::check_update}%", "KhCore", script)
 
@@ -48,7 +48,7 @@ function khcore_downGithub(file: text, link: text):
 		create file "plugins/%{_file}%"
 		delete file "plugins/%{_file}%"
 		download file from "%{_link}%" to file "plugins/%{_file}%"
-function khcore_playSound(p: player, sound: sound, v: int, w: int):
+function khcore_playSound(p: player, sound: sound, v: number, w: number):
 	{_p}.playSound(location of {_p}, Sound.."%{_sound}%", {_v} and {_w})
 function khcore_getColor(str: String) :: color:
 	set {split::*} to {_str} split at " : "
@@ -67,21 +67,21 @@ function khcore_getItem(str: String) :: material:
 			if {_item::2} contains "SHINY ":
 				replace all "SHINY " in {_item::2} with ""
 				return shiny {_item::2} parsed as material
-			if {_item::2} contains "HEAD:owner=":
-				set {_owner} to last element of {_item::2} split at "HEAD:owner=" parsed as offlineplayer
+			if {_item::2} contains "HEAD:dono=":
+				set {_owner} to last element of {_item::2} split at "HEAD:dono=" parsed as offlineplayer
 				return skull of {_owner}
 			return {_item::2} parsed as material
 function khcore_getLore(str: String) :: string:
 	set {split::*} to {_str} split at " : "
 	loop {split::*}:
-		if loop-value contains "lore>":
+		if loop-value contains "desc>":
 			set {item::*} to loop-value split at ">"
 			replace all "\n" with "||" in {item::2}
 			return colored {item::2}
 function khcore_getName(str: String) :: string:
 	set {split::*} to {_str} split at " : "
 	loop {split::*}:
-		if loop-value contains "named>":
+		if loop-value contains "nome>":
 			set {item::*} to loop-value split at ">"
 			return colored {item::2}
 function khcore_getSlot(str: String) :: integer:
@@ -89,15 +89,18 @@ function khcore_getSlot(str: String) :: integer:
 	loop {split::*}:
 		if loop-value contains "slot>":
 			set {item::*} to loop-value split at ">"
-			return {item::2} parsed as int	
-function khcore_getCommand(str: String) :: string:
-	set {split::*} to {_str} split at " : "
-	loop {split::*}:
-		if loop-value contains "execute>":
-			set {item::*} to loop-value split at ">"
-			return {item::2}
+			return {item::2} parsed as int
+function khcore_getText(p: player, var: text) :: text:
+	replace all "{now}" in {_var} with "%now%"
+	replace all "{khcore_group}" in {_var} with khcore_roles_getColoredGroup({_p})
+	replace all "{khcore_colored}" in {_var} with khcore_roles_getColored({_p})
+	replace all "{prefix}" in {_var} with khcore_roles_getPrefix({_p})
+	replace all "{on}" in {_var} with "%number of all players%"
+	replace all "{display}" in {_var} with khcore_roles_getPrefixed({_p})
+	replace all "{player}" in {_var} with {_p}'s displayname
+	return "%{_var}%"
 on load:
-    set {color-code} to "§, &, *"
+    set {color-code} to "§, &"
     set {color-pattern} to "a, b, c, d, e, f, k, l, m, n, o, r, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0"
 function khcore_getFirstColor(str: String) :: String:
     set {_codes::*} to {color-code} split at ", "
@@ -161,7 +164,7 @@ function khcore_paintArmor(p: player, t: text):
 function khcore_getWorldOnline(str: String) :: int:
 	set {_online} to 0
 	loop all players:
-		"%{_p}'s world%" == {_str}:
+		"%loop-player's world%" == {_str}:
 			add 1 to {_online}
 	return {_online}
 function khcore_serializeLocation(unserialized: Location) :: String:
@@ -183,8 +186,7 @@ function khcore_listContains(list: objects, search: object) :: boolean:
 			return true
 	return false
 function khcore_getFirstValue(list: objects) :: text:
-	loop {_list::*}:
-		return loop-value
+	return {_list::1}
 function khcore_getLastValue(list: objects) :: text:
 	loop {_list::*}:
 		add 1 to {_current}
@@ -200,6 +202,78 @@ function khcore_blood(p: player):
 	set {_loc} to location of {_p}
 	set {_material} to new MaterialData(Material.."REDSTONE_BLOCK")
 	FastParticle.spawnParticle({_w}, ParticleType.BLOCK_CRACK, {_loc}, 3 and {_material})
+function khcore_loadStats(p: player):
+	file "plugins/KhCore/players/%{_p}%.yml" doesn't exist:
+		create file "plugins/KhCore/players/%{_p}%.yml"
+		set yml value "%uuid of {_p}%.name" of file "plugins/KhCore/players/%{_p}%.yml" to {_p}'s displayname
+		loop "build" and "players" and "lobby-protection":
+			set yml value "%uuid of {_p}%.%loop-value%" of file "plugins/KhCore/players/%{_p}%.yml" to true
+		set yml value "%uuid of {_p}%.email" of file "plugins/KhCore/players/%{_p}%.yml" to "none"
+		set yml value "%uuid of {_p}%.login.first" of file "plugins/KhCore/players/%{_p}%.yml" to "%now%"
+	set yml value "%uuid of {_p}%.login.last" of file "plugins/KhCore/players/%{_p}%.yml" to "%now%"
+function khcore_checkStats(p: player, type: text) :: boolean:
+	set {_x%{_p}%} to yml value "%uuid of {_p}%.%{_type}%" of file "plugins/KhCore/players/%{_p}%.yml"
+	return {_x%{_p}%}
+function khcore_getStats(p: player, type: text) :: text:
+	set {_x%{_p}%} to yml value "%uuid of {_p}%.%{_type}%" of file "plugins/KhCore/players/%{_p}%.yml"
+	return {_x%{_p}%}
+
+# ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
+# menu
+command /m [<text>]:
+	trigger:
+		khcore_menu(player, arg 1)
+function khcore_menu(p: player, pag: text):
+	{_pag} == "profile":
+		khcore_playSound({_p}, CLICK, 1, 15)
+		open chest inventory with yml value "menu.rows" from "khcore.menus/profile" rows named yml value "menu.title" from "khcore.menus/profile" to {_p}
+		wait a tick
+		set {_temp::*} to skutil yaml nodes "menu.items" from file "plugins/KhCore/menus/profile.yml"
+		loop {_temp::*}:
+			set {_x} to yml value "menu.items.%loop-value%.icon" from file "plugins/KhCore/menus/profile.yml"
+			set {_c} to yml value "menu.items.%loop-value%.execute" from file "plugins/KhCore/menus/profile.yml"
+			set {_lore} to khcore_getLore({_x})
+			set {_item} to khcore_getItem({_x})
+			make a gui slot yml value "menu.items.%loop-value%.slot" from "khcore.menus/profile" of {_p} with {_item} without NBT named khcore_getName({_x}) with lore colored khcore_getText({_p}, "%{_lore}%") to run:
+				{_c} contains "SOUND>":
+					set {_temp::*} to {_c} split at "SOUND>"
+					set {_sound} to "%{_temp::2}%" parsed as sound
+					khcore_playSound({_p}, {_sound}, 1, 15)
+				{_c} contains "CORE>":
+					set {_temp::*} to {_c} split at "CORE>"
+					khcore_menu({_p}, "%{_temp::2}%")
+	{_pag} == "settings":
+		khcore_playSound({_p}, CLICK, 1, 15)
+		open chest inventory with yml value "menu.rows" from "khcore.menus/settings" rows named yml value "menu.title" from "khcore.menus/settings" to {_p}
+		wait a tick
+		set {_temp::*} to skutil yaml nodes "menu.items" from file "plugins/KhCore/menus/settings.yml"
+		loop {_temp::*}:
+			set {_set} to loop-value
+			set {_x} to yml value "menu.items.%loop-value%.icon" from file "plugins/KhCore/menus/settings.yml"
+			set {_c} to yml value "menu.items.%loop-value%.execute" from file "plugins/KhCore/menus/settings.yml"
+			set {_lore} to khcore_getLore({_x})
+			set {_item} to khcore_getItem({_x})
+			set {_name} to khcore_getName({_x})
+			set {_slot} to yml value "menu.items.%loop-value%.slot" from "khcore.menus/settings"
+			make a gui slot {_slot} of {_p} with {_item} without NBT named "&a%{_name}%" with lore colored khcore_getText({_p}, "%{_lore}%") to run:
+				{_c} contains "SOUND>":
+					set {_temp::*} to {_c} split at "SOUND>"
+					set {_sound} to "%{_temp::2}%" parsed as sound
+					khcore_playSound({_p}, {_sound}, 1, 15)
+				{_c} contains "CORE>":
+					set {_temp::*} to {_c} split at "CORE>"
+					khcore_menu({_p}, "%{_temp::2}%")
+			loop-value == "players":
+				loop true and false:
+					khcore_checkStats({_p}, "%loop-value-1%") == loop-value-2:
+						set {_op} to yml value "options.icons.%loop-value-2%" from file "plugins/KhCore/menus/settings.yml"
+						set {_item} to khcore_getItem({_op})
+						set {_name} to khcore_getName({_op})
+						replace all "{name}" in {_name} with khcore_getName({_x})
+						add 9 to {_slot}
+						make a gui slot {_slot} of {_p} with {_item} without NBT named {_name} with lore khcore_getLore({_op}) to run:
+							#khlobby_settings({_p}, "%{_set}%")
+							khcore_menu({_p}, "settings")
 
 # ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
 # Role api
@@ -252,6 +326,11 @@ function khcore_updateTag(p: player):
 # file manager
 function khcore_filemanager(use: text):
 	{_use} == "value":
+		loop currently loaded yaml files:
+			loop-value contains "khcore.menus/settings" or "khcore.menus/profile" or "khcore.config"
+			unload yaml loop-value
+		loop "menus/settings" and "menus/profile" and "config":
+			load yaml "plugins/KhCore/%loop-value%.yml" as "khcore.%loop-value%"
 		delete {roles::*}
 		set {roles::*} to skutil yaml nodes "roles" from file "plugins/KhCore/roles.yml"
 		set {_pos} to size of {roles::*}
