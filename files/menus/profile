@@ -1,0 +1,24 @@
+menu:
+  title: 'Meu Perfil'
+  rows: 3
+  items:
+    settings:
+      slot: 11
+      execute: 'CORE>settings'
+      icon: 'item>404 : nome>&aPreferências : desc>&7Veja as diversas preferências\n&7pessoais de nossa rede.'
+    statistics:
+      slot: 12
+      execute: 'SOUND>NOTE_PLING'
+      icon: 'item>PAPER : nome>&aEstatísticas : desc>&7Veja todas as suas estatísticas\n&7de todos os nossos minigames!'
+    informations:
+      slot: 13
+      execute: 'SOUND>ITEM_PICKUP'
+      icon: 'item>HEAD:dono={player} : nome>&aInformações Pessoais : desc>&7Grupo: {khcore_group}\n\n&7Cadastrado em: &f;-;\n&7Último login: &f;-;'
+    socials:
+      slot: 14
+      execute: 'SOUND>NOTE_PLING'
+      icon: 'item>HEAD:dono=Twitter : nome>&aRedes Sociais : desc>&7Clique aqui para editar o link de\n&7algumas das suas redes sociais!'
+    afk:
+      slot: 15
+      execute: 'SOUND>NOTE_PLING'
+      icon: 'item>HEAD:dono=Twitter : nome>&aRedes Sociais : desc>&7Clique aqui para editar o link de\n&7algumas das suas redes sociais!'
