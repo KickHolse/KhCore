@@ -1,0 +1,16 @@
+options:
+  icons:
+    true: 'item>160:5 : nome>&a{name} : desc>&7Estado: &aAtivado.'
+    false: 'item>160:14 : nome>&c{name} : desc>&7Estado: &cDesativado.'
+menu:
+  title: 'Preferências'
+  rows: 4
+  items:
+    players:
+      slot: 1
+      execute: 'SOUND>ITEM_PICKUP'
+      icon: 'item>CLOCK : nome>Visibilidade : desc>&7Ver outros jogadores nos lobbies.'
+    back:
+      slot: 31
+      execute: 'CORE>profile'
+      icon: 'item>ROSE_RED : nome>&cVoltar : desc>'
