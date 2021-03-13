@@ -1,53 +1,105 @@
 # ─────────────────────────────────────────────────── #
-#                 ▒███████▒ ███▄    █     ──          #
-#                 ▒ ▒ ▒ ▄▀░ ██ ▀█   █                 #
-#     ───         ░ ▒ ▄▀▒░ ▓██  ▀█ ██▒                #
-#                   ▄▀▒   ░▓██▒  ▐▌██▒                #
-#                 ▒███████▒▒██░   ▓██░                #
-#                 ░▒▒ ▓░▒░▒░ ▒░   ▒ ▒                 #
-#                 ░░▒ ▒ ░ ▒░ ░░   ░ ▒░                #
-#                 ░ ░ ░ ░ ░   ░   ░ ░      ───        #
-#                   ░ ░             ░                 #
-#   ─             ░                                   #
+#                    ██ ▄█▀  ██████                   #
+#                    ██▄█▒ ▒██    ▒                   #
+#                   ▓███▄░ ░ ▓██▄                     #
+#                   ▓██ █▄   ▒   ██▒                  #
+#                   ▒██▒ █▄▒██████▒▒                  #
+#                   ▒ ▒▒ ▓▒▒ ▒▓▒ ▒ ░                  #
+#                   ░ ░▒ ▒░░ ░▒  ░ ░                  #
+#                   ░ ░░ ░ ░  ░  ░                    #
+#                   ░  ░         ░                    #
 # ─────────────────────────────────────────────────── #
 options:
 #	Nome: KhCore | Autor: Kiberzn
-	version: 1.1
+	version: 1.2
 
 # ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
 # imports
 import:
-	org.bukkit.Material	
-	org.bukkit.material.MaterialData	
+	org.bukkit.Sound
+	org.bukkit.Material
+	java.text.DecimalFormat
+	java.text.DecimalFormatSymbols
+	org.bukkit.material.MaterialData
 	fr.mrmicky.fastparticle.FastParticle
 	fr.mrmicky.fastparticle.ParticleType
-	org.bukkit.Sound
 
 # ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
 # events
 on join:
 	khcore_loadStats(player)
+	khcore_roles_setup(player)
 	khcore_notifyUpdate(player, "KhCore", "khcore", "86802", "{@version}", "khcore atualizar")
+
+# ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
+# effects
+effect [khcore] update[r] %player% %boolean% %text% %text%:
+	trigger:
+		expression 2 is true:
+			send actionbar "&aConectando com o site..." to expression 1
+			wait 2 second
+			set {_percent1} to 90
+			loop 90 times:
+				add 1 to {_percent2}
+				set {_percent} to {_percent2}/{_percent1}*100
+				send actionbar "&aBaixando arquivo... &8(%{_percent}%%%)" to expression 1
+				wait a tick
+			delete file "plugins/Skript/scripts/%expression 4%.sk"
+			download file from "https://raw.githubusercontent.com/KickHolse/%expression 3%/main/update" to file "plugins/Skript/scripts/%expression 4%.sk"
+			reload script expression 4
+			khcore_playSound(expression 1, ORB_PICKUP, 1, 5)
+			send actionbar "&aAtualização instalada com sucesso!" to expression 1
+			stop
+		send "&cO skript se encontra em sua ultima versão." to expression 1
+effect [khcore] down[load[er]]git[hub] %text% %text%:
+	trigger:
+		file "plugins/%expression 1%" doesn't exist:
+			create file "plugins/%expression 1%"
+			delete file "plugins/%expression 1%"
+			download file from "%expression 2%" to file "plugins/%expression 1%"
+
+# ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
+# expressions
+expression %number% with decimal format %string%:
+    return type: string
+    get:
+        return (new DecimalFormat(expr-2)).format(expr-1)
+expression replacer %texts% with %texts% in %text%:
+	return type: text
+	get:
+		set {_result} to expr-3
+		loop exprs-1:
+			add 1 to {_n}
+			replace all "%loop-value-1%" with ({_n}th element of exprs-2 ? "") in {_result}
+		return {_result}
 
 # ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
 # commands
 command /khcore [<text = help>]:
 	permission: khcore.*
-	permission message: §3[KhCore] §7v{@version} §f- §7Criado por §6Kiberzn§7.
+	permission message: §3[KhCore] §7v{@version} §f- §7Criado por §6Kick Holse§7.
 	trigger:
 		arg 1 == "help":
 			send "%nl%&e  Ajuda - Core 1/1%nl% "
 			send "&3 /khcore atualizar &f- &7Atualiza o skript%nl% "
 		arg 1 == "atualizar":
-			khcore_update(player, "%{khcore::check_update}%", "KhCore", script)
+			khcore update player {khcore::check_update} "KhCore" script
 
 # ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
 # apis
+function formatNumber(var: number) :: text:
+    set {_x} to {_var} with decimal format "######,######"
+    return "%{_x}%"
 function khcore_downGithub(file: text, link: text):
-	file "plugins/%{_file}%" doesn't exist:
-		create file "plugins/%{_file}%"
-		delete file "plugins/%{_file}%"
-		download file from "%{_link}%" to file "plugins/%{_file}%"
+	# tirar quando atualizar os sk que ainda esta usando
+	khcore downgit "%{_file}%" "%{_link}%"
+function khcore_update(p: player, var: text, name: text, sk: text):
+	# tirar quando atualizar os sk que ainda esta usando
+	khcore update {_p} {_var} {_name} {_sk}
+function khcore_notifyUpdate(p: player, name: text, perm: text, id: text, v: text, cmd: text):
+	text from "https://api.spigotmc.org/legacy/update.php?resource=%{_id}%" is not "%{_v}%":
+		{_p} has permission "%{_perm}%.update" or "%{_perm}%.*":
+			send "%nl%&3 [%{_name}%] &7There is a new skript update, click <tooltip:&bClick here to update.><command:/%{_cmd}%>&a&lHERE<reset> &7to update.%nl% " to {_p}
 function khcore_playSound(p: player, sound: sound, v: number, w: number):
 	{_p}.playSound(location of {_p}, Sound.."%{_sound}%", {_v} and {_w})
 function khcore_getColor(str: String) :: color:
@@ -67,9 +119,15 @@ function khcore_getItem(str: String) :: material:
 			if {_item::2} contains "SHINY ":
 				replace all "SHINY " in {_item::2} with ""
 				return shiny {_item::2} parsed as material
+			if {_item::2} contains "BANNER:flag=":
+				return black_banner_item with custom nbt (last element of {_item::2} split at "BANNER:flag=")
 			if {_item::2} contains "HEAD:dono=":
-				set {_owner} to last element of {_item::2} split at "HEAD:dono=" parsed as offlineplayer
-				return skull of {_owner}
+				return skull of (last element of {_item::2} split at "HEAD:dono=" parsed as offlineplayer)
+			if {_item::2} contains "HEAD:nbt=":
+				set {_value} to last element of {_item::2} split at "HEAD:nbt="
+				set {_x::*} to {_value} split at ":"
+				set {_nbt} to "{SkullOwner:{Id:""%{_x::1}%"",Properties:{textures:[{Value:""%{_x::2}%""}]}}}"
+				return player head with custom nbt "%{_nbt}%"
 			return {_item::2} parsed as material
 function khcore_getLore(str: String) :: string:
 	set {split::*} to {_str} split at " : "
@@ -131,36 +189,14 @@ function khcore_stripColors(str: String) :: String:
 		loop {_patterns::*}:
 			replace all "%loop-value-1%%loop-value-2%" in {_str} with ""
 	return {_str}
-function khcore_notifyUpdate(p: player, name: text, perm: text, id: text, v: text, cmd: text):
-	text from "https://api.spigotmc.org/legacy/update.php?resource=%{_id}%" is not "%{_v}%":
-		{_p} has permission "%{_perm}%.update" or "%{_perm}%.*":
-			send "%nl%&3 [%{_name}%] &7There is a new skript update, click <tooltip:&bClick here to update.><command:/%{_cmd}%>&a&lHERE<reset> &7to update.%nl% " to {_p}
-function khcore_update(p: player, var: text, name: text, sk: text):
-	{_var} == "true":
-		set action bar of {_p} to "&aConectando com o site..."
-		wait 2 second
-		set {_percent1} to 90
-		loop 90 times:
-			add 1 to {_percent2}
-			set {_percent} to {_percent2}/{_percent1}*100
-			set action bar of {_p} to "&aBaixando arquivo... &8(%{_percent}%%%)"
-			wait a tick
-		delete file "plugins/Skript/scripts/%{_sk}%.sk"
-		download file from "https://raw.githubusercontent.com/KickHolse/%{_name}%/master/update" to file "plugins/Skript/scripts/%{_sk}%.sk"
-		reload script "%{_sk}%"
-		khcore_playSound({_p}, ORB_PICKUP, 1, 5)
-		set action bar of {_p} to "&aAtualização instalada com sucesso!"
-	else:
-		send "&cO skript se encontra em sua ultima versão." to {_p}
 function khcore_paintArmor(p: player, t: text):
 	set {_string::*} to {_t} split at ", "
-	set {_r} to {_string::1} parsed as number
-	set {_g} to {_string::2} parsed as number
-	set {_b} to {_string::3} parsed as number
-	dye {_p}'s helmet ({_r}, {_g}, {_b})
-	dye {_p}'s chestplate ({_r}, {_g}, {_b})
-	dye {_p}'s leggings ({_r}, {_g}, {_b})
-	dye {_p}'s boots ({_r}, {_g}, {_b})
+	loop 1 and 2 and 3:
+		set {_%loop-value%} to {_string::%loop-value%} parsed as number
+	dye {_p}'s helmet ({_1}, {_2}, {_3})
+	dye {_p}'s chestplate ({_1}, {_2}, {_3})
+	dye {_p}'s leggings ({_1}, {_2}, {_3})
+	dye {_p}'s boots ({_1}, {_2}, {_3})
 function khcore_getWorldOnline(str: String) :: int:
 	set {_online} to 0
 	loop all players:
@@ -182,7 +218,7 @@ function khcore_reverseValues(list: objects) :: objects:
 	return {_reversed::*}
 function khcore_listContains(list: objects, search: object) :: boolean:
 	loop {_list::*}:
-		if loop-value is {_search}:
+		loop-value is {_search}:
 			return true
 	return false
 function khcore_getFirstValue(list: objects) :: text:
@@ -211,16 +247,10 @@ function khcore_loadStats(p: player):
 		set yml value "%uuid of {_p}%.email" of file "plugins/KhCore/players/%{_p}%.yml" to "none"
 		set yml value "%uuid of {_p}%.login.first" of file "plugins/KhCore/players/%{_p}%.yml" to "%now%"
 	set yml value "%uuid of {_p}%.login.last" of file "plugins/KhCore/players/%{_p}%.yml" to "%now%"
-function khcore_checkStats(p: player, type: text) :: boolean:
-	set {_x%{_p}%} to yml value "%uuid of {_p}%.%{_type}%" of file "plugins/KhCore/players/%{_p}%.yml"
-	return {_x%{_p}%}
-function khcore_getStats(p: player, type: text) :: text:
-	set {_x%{_p}%} to yml value "%uuid of {_p}%.%{_type}%" of file "plugins/KhCore/players/%{_p}%.yml"
-	return {_x%{_p}%}
 
 # ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
 # Role api
-function khcore_roles_setup(p: player):
+function khcore_roles_setup(p: player, tag: boolean = false):
 	loop {roles::*}:
 		"%{role::%loop-value%.permission}%" == "none":
 			set {roleName.%{_p}%} to "%loop-value%"
@@ -230,7 +260,8 @@ function khcore_roles_setup(p: player):
 			set {roleName.%{_p}%} to "%loop-value%"
 			set {position.%{_p}%} to {role::%loop-value%.position}
 			set {broadcast.%{_p}%} to {role::%loop-value%.broadcast}
-		khcore_updateTag({_p})
+		{_tag} == true:
+			khcore_updateTag({_p})
 function khcore_roles_getPos(str: String) :: int:
 	return {roleName.%{_p}%}
 function khcore_roles_getPosition(p: player) :: int:
@@ -287,19 +318,17 @@ function khcore_filemanager(use: text):
 			
 			remove 1 from {_pos}
 	{_use} == "create":
-		file "plugins/KhCore/roles.yml" doesn't exist:
-			create file "plugins/KhCore/config.yml"
-			delete file "plugins/KhCore/config.yml"
-			khcore_downGithub("KhCore/roles.yml", "https://raw.githubusercontent.com/KickHolse/KhCore/main/files/roles")
+		khcore downgit "KhCore/roles.yml" "https://raw.githubusercontent.com/KickHolse/KhCore/main/files/roles"
 		khcore_filemanager("value")
 
 # ──────────────────────────────────────────────────────────────────────────────────────────────────────────────── #
 # load
-on load:
+load:
 	khcore_filemanager("create")
-	wait 1 second
+	delete {khcore::check_update}
+	wait a tick
 	text from "https://api.spigotmc.org/legacy/update.php?resource=86802" != "{@version}":
-		set {khcore::check_update} to "true"
+		set {khcore::check_update} to true
 		send "&3[KHCORE] &cYou are not using the latest version of skript" to console
 	else:
 		send "&3[KHCORE] &aYou are using the latest version of skript" to console
