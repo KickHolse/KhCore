@@ -2,12 +2,12 @@ roles:
   default:
     name: 'Membro'
     prefix: '&7'
-    permission: none
+    permission: 'none'
     broadcast: false
   vip:
     name: 'Vip'
     prefix: '&e[VIP] '
-    permission: roles.vip
+    permission: 'roles.vip'
     broadcast: true
   master:
     name: 'Master'
