@@ -1,16 +1,15 @@
 roles:
-  default:
-    name: 'Membro'
-    prefix: '&7'
-    permission: 'none'
-    broadcast: false
-  vip:
-    name: 'Vip'
-    prefix: '&e[VIP] '
-    permission: 'roles.vip'
-    broadcast: true
-  master:
-    name: 'Master'
-    prefix: '&6[Master] '
-    permission: '*'
-    broadcast: true
+ default:
+  name: 'Membro'
+  prefix: '&7'
+  permission: 'none'
+ vip:
+  name: 'Vip'
+  prefix: '&e[VIP] '
+  permission: 'roles.vip'
+  broadcast: true
+ master:
+  name: 'Master'
+  prefix: '&6[Master] '
+  permission: '*'
+  broadcast: true
