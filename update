@@ -167,14 +167,11 @@ function khcore_clear(p: player):
   set {_p}'s gamemode to adventure
   mgStats({_p}, "preferencies.build", "set", "boolean", "false")
   mgStats({_p}, "kitpvp.combatlog", "set", "boolean", "false")
-  delete {chat_delay::%{_p}%} and {lasthit.%{lasthit.%{_p}%}%} and {lasthit.%{_p}%}
+  delete {ninja_v::%{_p}%} and {ninja_t::%{_p}%} and {fisherman::%{_p}%} and {skill::invencible_%{_p}%} and {kit_delay::%{_p}%} and {chat_delay::%{_p}%} and {lasthit.%{lasthit.%{_p}%}%} and {lasthit.%{_p}%}
   loop "xp" and "kills" and "coins" and "levelcoins":
     delete {summary_%loop-value%::%{_p}%}
   loop ...{_p}.getActivePotionEffects():
     {_p}.removePotionEffect(loop-value.getType())
-
-    #delete {kit_delay::%{_p}%} and {skill::invincible_%{_p}%} and {ninja_v::%{_p}%} and {ninja_t::%{_p}%} and {fisherman::%{_p}%}
-    #remove wither and poison and blindness and speed and regeneration and jump boost and fire resistance and slowness and mining fatigue from {_p}
 function khcore_text(p: offlineplayer, var: string) :: string:
   replace all "{khcore_coloredgroup}" in {_var} with khcore_roles({_p}, "get", "coloredgroup")
   replace all "{khcore_prefixed}" in {_var} with khcore_roles({_p}, "get", "prefixed")
