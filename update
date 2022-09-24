@@ -11,7 +11,7 @@
 # ─────────────────────────────────────────────────── #
 options:
 # KhCore | crafted by Kick Holse
-  version: 1.3
+  version: 1.4
 # ─────────────────────────────────────────────────── #
 import:
   java.io.File
@@ -60,7 +60,8 @@ function deserializeItem(str: text, p: offlineplayer) :: material:
     loop-value contains "pintar>":
       set {_p::*} to loop-value split at ">"
       set {_color} to colored {_p::2}
-      dye {_item} (255, 255, 255)
+      set {_item} to {_item} dyed {_p::2} parsed as color
+      #dye {_item} (255, 255, 255)
     loop-value contains "encantar>":
       set {_enchants::*} to loop-value split at ">"
       set {_x} to {_enchants::2}
