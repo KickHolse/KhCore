@@ -11,7 +11,7 @@
 # ─────────────────────────────────────────────────── #
 options:
 # KhCore | crafted by Kick Holse
-  version: 1.4
+  version: 1.5
 # ─────────────────────────────────────────────────── #
 import:
   java.io.File
@@ -215,6 +215,7 @@ function resetStats(p: player):
   mgStats({_p}, "role", "set", "text", "default")
   mgStats({_p}, "email", "set", "text", "none")
   mgStats({_p}, "kitpvp.selected_kit", "set", "text", "none")
+  mgStats({_p}, "kitpvp.selected_dcrie", "set", "text", "none")
   mgStats({_p}, "kitpvp.combatlog", "set", "boolean", "false")
   loop "killstreak" and "coins" and "kills" and "deaths":
     mgStats({_p}, "kitpvp.%loop-value%", "set", "number", "0")
@@ -222,10 +223,11 @@ function resetStats(p: player):
   mgStats({_p}, "kitpvp.level.level", "set", "number", "1")
   mgStats({_p}, "kitpvp.level.reward", "set", "number", "500")
   mgStats({_p}, "kitpvp.level.xp_to_next_level", "set", "number", "100")
-  loop yaml list "%uuid of {_p}%.kitpvp.kits" from file "plugins/KhCore/players/%uuid of {_p}%.yml":
-    set {_x::*} to yaml list "%{_uuid}%.kitpvp.kits" from file "plugins/KhCore/players/%uuid of {_p}%.yml"
-    size of {_x::*} > 1
-    remove loop-value from yaml list "%{_uuid}%.kitpvp.kits" from file "plugins/KhCore/players/%uuid of {_p}%.yml"
+  loop "kits" and "deathcries":
+    loop yaml list "%uuid of {_p}%.kitpvp.%loop-value%" from file "plugins/KhCore/players/%uuid of {_p}%.yml":
+      set {_x::*} to yaml list "%{_uuid}%.kitpvp.%loop-value-1%" from file "plugins/KhCore/players/%uuid of {_p}%.yml"
+      size of {_x::*} > 1
+      remove loop-value-2 from yaml list "%{_uuid}%.kitpvp.%loop-value-1%" from file "plugins/KhCore/players/%uuid of {_p}%.yml"
   add "default" to yaml list "%{_uuid}%.kitpvp.kits" from file "plugins/KhCore/players/%uuid of {_p}%.yml"
   mgStats({_p}, "preferencies.build", "set", "boolean", "false")
   loop "players" and "lobby_protection":
@@ -282,7 +284,7 @@ function khcore_roles(p: offlineplayer, type: text, find: text="default") :: tex
     set {_pos} to size of yaml nodes with keys "roles" from "ks.core.roles"
     loop yaml nodes with keys "roles" from "ks.core.roles":
       loop-value is {_find}:
-        return {_pos}
+        return "%{_pos}%"
       remove 1 from {_pos}
   {_type} is "get":
     set {_role} to "default"
