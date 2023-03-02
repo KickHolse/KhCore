@@ -11,7 +11,7 @@
 # ─────────────────────────────────────────────────── #
 options:
 # KhCore | crafted by Kick Holse
-  version: 1.5
+  version: 1.6
 # ─────────────────────────────────────────────────── #
 import:
   java.io.File
@@ -39,7 +39,18 @@ function deserializeItem(str: text, p: offlineplayer) :: material:
     return air
   set {_sp::*} to {_str} split at " : "
   set {_item} to {_sp::1} parsed as material
+  {_item} is a banner:
+    {_str} contains "nbt>":
+      set {_xx::*} to {_str} split at "nbt>"
+      set {_h} to {_xx::2}
+      set {_item} to {_item} with custom nbt first element of {_h} split at " "
   {_item} is a head:
+    {_str} contains "value>":
+      loop "value" and "owner_id":
+        set {_xx::*} to {_str} split at "%loop-value%>"
+        set {_h} to {_xx::2}
+        set {_%loop-value%} to first element of {_h} split at " "
+      set {_item} to player head with custom nbt "{SkullOwner:{Id:""%{_owner_id}%"",Properties:{textures:[{Value:""%{_value}%""}]}}}"
     {_str} contains "dono>":
       set {_owner::*} to {_str} split at "dono>"
       set {_h} to {_owner::2}
@@ -62,6 +73,7 @@ function deserializeItem(str: text, p: offlineplayer) :: material:
       set {_color} to colored {_p::2}
       set {_item} to {_item} dyed {_p::2} parsed as color
       #dye {_item} (255, 255, 255)
+      #dye player's boots (random integer between 0 and 255, random integer between 0 and 255, random integer between 0 and 255)
     loop-value contains "encantar>":
       set {_enchants::*} to loop-value split at ">"
       set {_x} to {_enchants::2}
@@ -230,8 +242,13 @@ function resetStats(p: player):
       remove loop-value-2 from yaml list "%{_uuid}%.kitpvp.%loop-value-1%" from file "plugins/KhCore/players/%uuid of {_p}%.yml"
   add "default" to yaml list "%{_uuid}%.kitpvp.kits" from file "plugins/KhCore/players/%uuid of {_p}%.yml"
   mgStats({_p}, "preferencies.build", "set", "boolean", "false")
-  loop "players" and "lobby_protection":
+  loop "tell" and "players":
+    mgStats({_p}, "preferencies.%loop-value%", "set", "text", "all")
+  loop "lobby_protection" and "join_message" and "fly":
     mgStats({_p}, "preferencies.%loop-value%", "set", "boolean", "true")
+  mgStats({_p}, "preferencies.night_mode", "set", "boolean", "false")
+  loop "twitter" and "instagram" and "discord" and "facebook" and "youtube" and "tiktok" and "snapchat":
+    mgStats({_p}, "sociais.%loop-value%", "set", "text", "none")
   loop "first" and "last":
     mgStats({_p}, "login.%loop-value%", "set", "text", "%now%")
 function mgStats(p: player, key: text, mode: text, type: text, value: text) :: string:
@@ -290,7 +307,7 @@ function khcore_roles(p: offlineplayer, type: text, find: text="default") :: tex
     set {_role} to "default"
     fileExists("plugins/KhCore/players/%uuid of {_p}%.yml") is true:
       set {_role} to mgStats({_p}, "role", "get", "", "")
-    set {_prefix} to yaml value "roles.%{_role}%.prefix" from "ks.core.roles"
+    set {_prefix} to replacer "{color}" with {%{_p}%.rank_color} in yaml value "roles.%{_role}%.prefix" from "ks.core.roles"
     set {_color} to last color from "%{_prefix}%"
     {_find} = "isbroadcasted":
       yaml value "roles.%{_role}%.broadcast" from "ks.core.roles" exists:
@@ -299,7 +316,7 @@ function khcore_roles(p: offlineplayer, type: text, find: text="default") :: tex
     {_find} = "role":
       return "%{_role}%"
     {_find} = "coloredgroup":
-      set {_name} to yaml value "roles.%{_role}%.name" from "ks.core.roles"
+      set {_name} to replacer "{color}" with {%{_p}%.rank_color} in yaml value "roles.%{_role}%.name" from "ks.core.roles"
       return colored "%{_color}%%{_name}%"
     {_find} = "colored":
       return colored "%{_color}%%{_p}%"
@@ -320,14 +337,14 @@ function khcore_roles(p: offlineplayer, type: text, find: text="default") :: tex
       make console execute command "nte player %{_p}% prefix %{_prefix}%"
     make console execute command "nte player %{_p}% priority %{_pos}%"
 
+#                  E  V  E  N  T  S                   #
 # ─────────────────────────────────────────────────── #
-# events
 join:
   loadStats(player)
   setup role to player and false
 
+#                     L  O  A  D                      #
 # ─────────────────────────────────────────────────── #
-# load
 load:
   set {color_code} to "§, &"
   set {color_patterns} to "a, b, c, d, e, f, k, l, m, n, o, r, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0"
