@@ -1,4 +1,4 @@
-UUID:
+%UUID%:
   name: %NAME%
   role: %ROLE%
 
