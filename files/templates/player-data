@@ -1,0 +1,31 @@
+UUID:
+  name: %NAME%
+  role: %ROLE%
+
+  kitpvp:
+    selected:
+      kit/warp: spawn
+      deathcrie: none
+
+    fps:
+      kills: 0
+      deaths: 0
+      ks: 0
+      max_ks: 0
+    normal:
+      kills: 0
+      deaths: 0
+      ks: 0
+      max_ks: 0
+
+    coins: 0
+    combatlog: false
+    level:
+      xp: 0
+      level: 1
+      reward: 500
+      xp_to_next_level: 100
+
+    kits:
+    - default
+    deathcries: []
