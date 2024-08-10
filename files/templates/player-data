@@ -1,1 +1,1 @@
-'uuid.name','user','text'\n'uuid.role','default','text'\n\n'uuid.thebridge.kills','0','int'\n\n'uuid.kitpvp.kills','0','int'
+uuid.name,user,text\nuuid.role,default,text\n\nuuid.thebridge.kills,0,int\n\nuuid.kitpvp.kills,0,int
