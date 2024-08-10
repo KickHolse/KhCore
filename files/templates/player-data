@@ -1,6 +1,6 @@
 UUID:
-  name: %NAME%
-  role: %ROLE%
+  name: '%NAME%'
+  role: '%ROLE%'
 
   kitpvp:
     selected:
